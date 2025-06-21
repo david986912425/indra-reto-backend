@@ -152,4 +152,5 @@ npm run deploy -- --stage prod
 
 ## API Documentation
 - Local: http://localhost:3000/dev/api-docs
+- Produccion: https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/api-docs
 - ![img.png](img.png)
