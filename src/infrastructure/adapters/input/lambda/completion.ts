@@ -27,7 +27,7 @@ export const handler: EventBridgeHandler<
   );
 
   try {
-    const { appointmentId, status } = event.detail;
+    const { appointmentId } = event.detail;
 
     await docClient.send(
       new UpdateCommand({
@@ -42,8 +42,6 @@ export const handler: EventBridgeHandler<
         },
       }),
     );
-
-    console.log(`Appointment ${appointmentId} status updated to ${status}`);
   } catch (error) {
     console.error('Error updating appointment status:', error);
     throw error;

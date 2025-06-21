@@ -21,14 +21,14 @@ const bootstrapServer = async (): Promise<Handler> => {
   app.enableCors();
 
   const config = new DocumentBuilder()
-    .setTitle('API de Sinapsis')
-    .setDescription('Documentación de la API de Sinapsis')
+    .setTitle('API Medical Appointment Scheduler')
+    .setDescription('Documentación de la API')
     .setVersion('1.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api-docs', app, document, {
-    customSiteTitle: 'Documentación API Sinapsis',
+    customSiteTitle: 'Documentación API Medical Appointment Scheduler',
   });
 
   await app.init();

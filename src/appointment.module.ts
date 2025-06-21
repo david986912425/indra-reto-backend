@@ -21,7 +21,6 @@ import { AppointmentSchema } from './infrastructure/adapters/output/persistence/
   ],
   controllers: [AppointmentController],
   providers: [
-    // Use Cases
     {
       provide: CREATE_APPOINTMENT_USE_CASE_TOKEN,
       useClass: CreateAppointmentUseCase,
@@ -30,17 +29,14 @@ import { AppointmentSchema } from './infrastructure/adapters/output/persistence/
       provide: GET_APPOINTMENTS_BY_INSURED_USE_CASE_TOKEN,
       useClass: GetAppointmentsByInsuredUseCase,
     },
-    // Repositories
     {
       provide: APPOINTMENT_REPOSITORY_TOKEN,
       useClass: DynamoDbAppointmentRepository,
     },
-    // Services
     {
       provide: NOTIFICATION_SERVICE_TOKEN,
       useClass: SnsNotificationService,
     },
-    // Concrete implementations for backward compatibility
     DynamoDbAppointmentRepository,
     SnsNotificationService,
     CreateAppointmentUseCase,

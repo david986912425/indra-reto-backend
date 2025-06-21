@@ -3,13 +3,12 @@ import {
   PutEventsCommand,
 } from '@aws-sdk/client-eventbridge';
 import { SQSEvent, SQSHandler } from 'aws-lambda';
+
 import { Appointment } from '../../../../domain/entities/appointment.entity';
 
 const eventBridge = new EventBridgeClient({ region: process.env.REGION });
 
 export const handler: SQSHandler = async (event: SQSEvent) => {
-  console.log('Processing CL appointments:', JSON.stringify(event, null, 2));
-
   for (const record of event.Records) {
     try {
       const snsMessage = JSON.parse(record.body);
