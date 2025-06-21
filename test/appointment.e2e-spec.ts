@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 
-// Mock AWS SDK
 jest.mock('@aws-sdk/client-sns', () => ({
   SNSClient: jest.fn().mockImplementation(() => ({
     send: jest.fn().mockResolvedValue({}),
@@ -47,7 +46,7 @@ describe('Appointment API (e2e)', () => {
     return request(app.getHttpServer())
       .post('/appointment')
       .send({
-        insuredId: '123', // Invalid length
+        insuredId: '123',
         scheduleId: 100,
         countryISO: 'PE',
       })
@@ -60,7 +59,7 @@ describe('Appointment API (e2e)', () => {
       .send({
         insuredId: '00123',
         scheduleId: 100,
-        countryISO: 'US', // Invalid country
+        countryISO: 'US',
       })
       .expect(400);
   });
