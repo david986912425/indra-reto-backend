@@ -25,8 +25,6 @@ export class CreateAppointmentUseCase implements ICreateAppointmentUseCase {
   ) {}
 
   async execute(dto: CreateAppointmentDto): Promise<Appointment> {
-    console.log(`Creating appointment for insured: ${dto.insuredId}`);
-
     const appointment = new Appointment(
       uuidv4(),
       dto.insuredId,
@@ -36,12 +34,8 @@ export class CreateAppointmentUseCase implements ICreateAppointmentUseCase {
       new Date(),
     );
 
-    // Save to repository
     const savedAppointment = await this.appointmentRepository.save(appointment);
-    console.log(`Appointment saved with ID: ${savedAppointment.id}`);
-
     await this.notificationService.publishAppointmentCreated(savedAppointment);
-    console.log(`Appointment ${savedAppointment.id} sent for processing`);
 
     return savedAppointment;
   }

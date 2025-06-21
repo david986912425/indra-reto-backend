@@ -13,7 +13,6 @@ export class SnsNotificationService implements INotificationService {
   async publishAppointmentCreated(appointment: Appointment): Promise<void> {
     const topic = `arn:aws:sns:${process.env.REGION}:${Env.ACCOUNT_ID}:appointment-processing-topic`;
 
-    console.log('SNS_TOPIC_ARN', topic);
     await this.sns.send(
       new PublishCommand({
         TopicArn: topic,
