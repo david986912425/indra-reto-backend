@@ -1,10 +1,6 @@
 # Medical Appointment Scheduling Backend - Hexagonal Architecture
-
-
 Una aplicación backend sin servidor para programar citas médicas para pacientes asegurados en Perú (PE) y Chile (CL), construida utilizando principios de Arquitectura Hexagonal.
 ## Architecture Overview
-
-This application implements a complete serverless architecture using AWS services with **Hexagonal Architecture** (Ports and Adapters):
 
 ### AWS Services Flow
 1. **API Gateway + Lambda**: Recibe solicitudes de citas
@@ -57,8 +53,11 @@ src/modules/appointment/
 ## API Endpoints
 
 ### POST /appointment
-Creates a new medical appointment request.
+Crear una nueva cita medica
 
+```bash
+https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/appointment
+```
 **Request Body:**
 ```json
 {
@@ -79,6 +78,10 @@ Creates a new medical appointment request.
 
 ### GET /appointment/insured/{insuredId}
 Retrieves all appointments for a specific insured patient.
+
+```bash
+https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/appointment/insured/00003
+```
 
 **Response:**
 ```json
@@ -120,6 +123,7 @@ export const Env = {
 
 ```bash
 # Or start with serverless offline
+docker run -d -p 8000:8000 --name dynamodb-local amazon/dynamodb-local
 npm run sls:offline
 ```
 
@@ -148,3 +152,4 @@ npm run deploy -- --stage prod
 
 ## API Documentation
 - Local: http://localhost:3000/dev/api-docs
+- ![img.png](img.png)
