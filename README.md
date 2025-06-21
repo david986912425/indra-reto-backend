@@ -40,7 +40,7 @@ src/modules/appointment/
 │   └── adapters/
 │       ├── input/                   
 │       │   └── web/
-│       │       └── appointment.controller.ts    # REST API adapter
+│       │       └── appointment.controller.ts
 │       └── output/                  
 │           ├── persistence/
 │           │   ├── dynamodb-appointment.repository.ts 
