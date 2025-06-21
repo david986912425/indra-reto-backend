@@ -1,15 +1,16 @@
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Inject,
-  Param,
-  Post,
-} from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 
+import { CreateAppointmentResponseDto } from '../../../../application/dto/create-appointment-response.dto';
 import { CreateAppointmentDto } from '../../../../application/dto/create-appointment.dto';
+import { GetAppointmentsByInsuredResponseDto } from '../../../../application/dto/get-appointment-response.dto';
 import {
   CREATE_APPOINTMENT_USE_CASE_TOKEN,
   ICreateAppointmentUseCase,
@@ -31,14 +32,11 @@ export class AppointmentController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new medical appointment' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
+  @ApiCreatedResponse({
     description: 'Appointment created successfully and is being processed',
+    type: CreateAppointmentResponseDto,
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input data',
-  })
+  @ApiBadRequestResponse({ description: 'Invalid input data' })
   async create(@Body() body: CreateAppointmentDto) {
     const appointment = await this.createAppointmentUseCase.execute(body);
     return {
@@ -55,9 +53,9 @@ export class AppointmentController {
     description: 'The 5-digit insured ID',
     example: '00123',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'List of appointments for the insured',
+    type: GetAppointmentsByInsuredResponseDto,
   })
   async findByInsuredId(@Param('insuredId') insuredId: string) {
     const appointments =
@@ -74,19 +72,6 @@ export class AppointmentController {
         updatedAt: appointment.updatedAt,
       })),
       total: appointments.length,
-    };
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Service is running',
-  })
-  findAll() {
-    return {
-      message: 'Medical Appointment Service is running',
-      timestamp: new Date().toISOString(),
     };
   }
 }
