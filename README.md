@@ -61,8 +61,8 @@ https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/appointment
 **Request Body:**
 ```json
 {
-  "insuredId": "00123",
-  "scheduleId": 100,
+  "insuredId": "00003",
+  "scheduleId": 123,
   "countryISO": "PE"
 }
 ```
@@ -71,13 +71,13 @@ https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/appointment
 ```json
 {
   "message": "El agendamiento está en proceso",
-  "appointmentId": "uuid-here",
+  "appointmentId": "da9301cd-2475-41c6-8287-13eee34a4aac",
   "status": "pending"
 }
 ```
 
 ### GET /appointment/insured/{insuredId}
-Retrieves all appointments for a specific insured patient.
+Recupera todas las citas para un paciente asegurado específico.
 
 ```bash
 https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/appointment/insured/00003
@@ -86,19 +86,19 @@ https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/appointment/insured/0
 **Response:**
 ```json
 {
-  "insuredId": "00123",
+  "insuredId": "00003",
   "appointments": [
     {
-      "id": "uuid-here",
-      "insuredId": "00123",
-      "scheduleId": 100,
+      "id": "3aa4054f-f27d-409f-85eb-0478406aba4d",
+      "insuredId": "00003",
+      "scheduleId": 123,
       "countryISO": "PE",
       "status": "completed",
-      "createdAt": "2024-01-01T12:00:00Z",
-      "updatedAt": "2024-01-01T12:05:00Z"
+      "createdAt": "2025-06-21T07:41:08.613Z",
+      "updatedAt": "2025-06-21T07:41:08.629Z"
     }
   ],
-  "total": 1
+  "total": 2
 }
 ```
 
