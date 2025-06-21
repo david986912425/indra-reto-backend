@@ -1,0 +1,200 @@
+service: aws-nestjs-starter
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    SERVICE: ${self:service}
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    IS_DDB_LOCAL: ${env:IS_DDB_LOCAL, 'false'}
+  apiGateway:
+    shouldStartNameWithService: true
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: arn:aws:dynamodb:${self:provider.region}:*:*
+        - Effect: Allow
+          Action:
+            - sns:Publish
+          Resource: !Ref AppointmentSNSTopic
+        - Effect: Allow
+          Action:
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource:
+            - !GetAtt AppointmentQueuePE.Arn
+            - !GetAtt AppointmentQueueCL.Arn
+            - !GetAtt AppointmentCompletionQueue.Arn
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: "*"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-offline-sns
+
+custom:
+  dynamodb:
+    stages:
+      - ${self:provider.stage}
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: false
+  sns:
+    region: ${self:provider.region}
+    debug: true
+
+package:
+  individually: true
+
+functions:
+  index-function:
+    handler: src/index.handler
+    events:
+      - http:
+          cors: true
+          path: '{proxy+}'
+          method: any
+
+  processAppointmentPE:
+    handler: src/infrastructure/adapters/input/lambda/pe.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - AppointmentQueuePE
+              - Arn
+
+  processAppointmentCL:
+    handler: src/infrastructure/adapters/input/lambda/cl.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - AppointmentQueueCL
+              - Arn
+
+  processAppointmentCompletion:
+    handler: src/infrastructure/adapters/input/lambda/completion.handler
+    events:
+      - eventBridge:
+          pattern:
+            source:
+              - appointment.pe
+              - appointment.cl
+            detail-type:
+              - Appointment Processed
+
+resources:
+  Resources:
+    AppointmentSNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: appointment-processing-topic
+
+    AppointmentQueuePE:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: appointment-pe-queue
+
+    AppointmentQueueCL:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: appointment-cl-queue
+
+    AppointmentCompletionQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: appointment-completion-queue
+
+    AppointmentTopicSubscriptionPE:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref AppointmentSNSTopic
+        Protocol: sqs
+        Endpoint: !GetAtt AppointmentQueuePE.Arn
+        FilterPolicy:
+          countryISO: ["PE"]
+
+    AppointmentTopicSubscriptionCL:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref AppointmentSNSTopic
+        Protocol: sqs
+        Endpoint: !GetAtt AppointmentQueueCL.Arn
+        FilterPolicy:
+          countryISO: ["CL"]
+
+    AppointmentQueuePEPolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: AppointmentQueuePE
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action: "sqs:SendMessage"
+              Resource: !GetAtt AppointmentQueuePE.Arn
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Ref AppointmentSNSTopic
+
+    AppointmentQueueCLPolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: AppointmentQueueCL
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action: "sqs:SendMessage"
+              Resource: !GetAtt AppointmentQueueCL.Arn
+              Condition:
+                ArnEquals:
+                  aws:SourceArn: !Ref AppointmentSNSTopic
+
+    AppointmentCompletionRule:
+      Type: AWS::Events::Rule
+      Properties:
+        EventPattern:
+          source:
+            - appointment.pe
+            - appointment.cl
+          detail-type:
+            - Appointment Processed
+        Targets:
+          - Arn: !GetAtt AppointmentCompletionQueue.Arn
+            Id: AppointmentCompletionTarget
+
+    AppointmentCompletionQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: AppointmentCompletionQueue
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: events.amazonaws.com
+              Action: "sqs:SendMessage"
+              Resource: !GetAtt AppointmentCompletionQueue.Arn
