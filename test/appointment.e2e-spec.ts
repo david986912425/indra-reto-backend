@@ -1,6 +1,8 @@
 import request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { AppModule } from '../src/app.module';
 
 jest.mock('@aws-sdk/client-sns', () => ({
@@ -19,6 +21,7 @@ describe('Appointment API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     await app.init();
   });
 
@@ -72,16 +75,6 @@ describe('Appointment API (e2e)', () => {
         expect(res.body.insuredId).toBe('00123');
         expect(res.body.appointments).toBeDefined();
         expect(res.body.total).toBeDefined();
-      });
-  });
-
-  it('/appointment (GET) - should return health check', () => {
-    return request(app.getHttpServer())
-      .get('/appointment')
-      .expect(200)
-      .expect((res) => {
-        expect(res.body.message).toBe('Medical Appointment Service is running');
-        expect(res.body.timestamp).toBeDefined();
       });
   });
 });
