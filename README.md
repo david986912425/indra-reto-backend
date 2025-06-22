@@ -130,12 +130,6 @@ npm run sls:offline
 ### Testing
 
 ```bash
-# Run unit tests
-npm test
-
-# Run tests with coverage
-npm run test:cov
-
 # Run e2e tests
 npm run test:e2e
 ```
@@ -145,9 +139,6 @@ npm run test:e2e
 ```bash
 # Deploy to AWS
 npm run deploy
-
-# Deploy to specific stage
-npm run deploy -- --stage prod
 ```
 
 ## API Documentation
