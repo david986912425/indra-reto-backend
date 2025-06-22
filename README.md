@@ -134,6 +134,8 @@ npm run sls:offline
 npm run test:e2e
 ```
 
+![img_1.png](img_1.png)
+
 ## Deployment
 
 ```bash
@@ -145,3 +147,4 @@ npm run deploy
 - Local: http://localhost:3000/dev/api-docs
 - Produccion: https://infdf6ymzf.execute-api.us-east-1.amazonaws.com/dev/api-docs
 - ![img.png](img.png)
+-
